@@ -1,8 +1,47 @@
+# What is this?
+This project contains scripts to reproduce my paper 
+[On the Convergence of Deep Learning with Differential Privacy](https://arxiv.org/abs/2106.07830)
+by Zhiqi Bu, Hua Wang, Qi Long, and Weijie J. Su. We only add **one line of code** into the [Pytorch Opacus library](https://github.com/pytorch/opacus).
+
+# The Problem of Interest
+Deep learning models are vulnerable to privacy attacks and raise severe privacy concerns. To protect the privacy, Abadi et. al. applied [deep learning with differential privacy](https://arxiv.org/abs/1607.00133) (DP) and obtain DP neural networks. Notably, if you train a neural network with SGD, you get regular non-DP network; if you train with differentially private SGD (DP-SGD), you get DP network.
+
+Any regular optimizers (SGD, HeavyBall, Adam) can be turned into DP optimizers, with per-sample clipping and noise addition, via the Gaussian Mechanism. However, the convergence of DP optimizers is usually much slower and results in low accuracy (e.g. in [recent Google paper](https://arxiv.org/abs/2007.14191), state-of-the-art CIFAR10 accuracy without pretraining is 66\% when privacy risk $\epsilon=8$).
+
+We give the first **general convergence analysis** on the training dynamics of DP optimizers in deep learning, taking a close look at neural tangent kernel (**NTK**) matrix.
+
+We show that existing per-sample clipping (which we refer to as the **local** clipping) breaks the positive semi-definiteness of NTK, which leads to undesirable convergence behavior. We thus propose the **global** per-sample clipping to preserve the positive semi-definiteness and significantly improve the convergence as well as the calibration.
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/tree/master/website/static/img/clippings.png" alt="Opacus" width="500"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/tree/master/website/static/img/clippings_summary.png" alt="Opacus" width="500"/></p>
+
+![1](https://github.com/woodyx218/opacus_global_clipping/tree/master/website/static/img/clippings.png)
+
+# Codes
+We add
+```python
+clip_factor=torch.min(clip_factor)+torch.zeros_like(clip_factor)
+```
+between line 197 and line 198 in (https://github.com/pytorch/opacus/blob/ee6867e6364781e67529664261243c16c3046b0b/opacus/per_sample_gradient_clip.py) as in Feburary 2021, to implement our global per-sample clipping.
+
+## Installation
+```bash
+git clone https://github.com/woodyx218/opacus_global_clipping.git
+cd opacus_global_clipping
+pip install -e .
+```
+
+When using the code, the user still refer to the Opacus, e.g.
+```python
+import opacus
+```
+
+
+# Introducing Opacus
+The below contents are forked from [Opacus github](https://github.com/pytorch/opacus). We do not claim ownership of the codes in this open-sourced repository and we sincerely thank the Opacus community for maintaining this amazing library.
+
 <p align="center"><img src="https://github.com/pytorch/opacus/blob/master/website/static/img/opacus_logo.svg" alt="Opacus" width="500"/></p>
 
 <hr/>
-
-[![CircleCI](https://circleci.com/gh/pytorch/opacus.svg?style=svg)](https://circleci.com/gh/pytorch/opacus)
 
 [Opacus](https://opacus.ai) is a library that enables training PyTorch models with differential privacy. It supports training with minimal code changes required on the client, has little impact on training performance and allows the client to online track the privacy budget expended at any given moment.
 
@@ -12,28 +51,6 @@ This code release is aimed at two target audiences:
 2. Differential Privacy scientists will find this easy to experiment and tinker with, allowing them to focus on what matters.
 
 
-## Installation
-The latest release of Opacus can be installed via `pip`:
-```bash
-pip install opacus
-```
-
-> :warning: **NOTE**: This will bring in the latest version of our deps, which are on Cuda 10.2. This will not work if you environment is using an older Cuda version (for example, Google Colab is still on Cuda 10.1).
-
-To install on Colab, run this cell first:
-
-```bash
-pip install torchcsprng==0.1.3+cu101 -f https://download.pytorch.org/whl/torch_stable.html
-```
-Then you can just `pip install opacus` like before. See more context in [this issue](https://github.com/pytorch/opacus/issues/69).
-
-
-You can also install directly from the source for the latest features (along with its quirks and potentially ocassional bugs):
-```bash
-git clone https://github.com/pytorch/opacus.git
-cd opacus
-pip install -e .
-```
 
 ## Getting started
 To train your model with differential privacy, all you need to do is to declare a `PrivacyEngine` and attach it to your optimizer before running, eg:
@@ -54,9 +71,6 @@ privacy_engine.attach(optimizer)
 
 The [MNIST example](https://github.com/pytorch/opacus/tree/master/examples/mnist.py) shows an end-to-end run using opacus. The [examples](https://github.com/pytorch/opacus/tree/master/examples/) folder contains more such examples.
 
-## FAQ
-Checkout the [FAQ](https://opacus.ai/docs/faq) page for answers to some of the most frequently asked questions about Differential Privacy and Opacus.
-
 ## Contributing
 See the [CONTRIBUTING](https://github.com/pytorch/opacus/tree/master/CONTRIBUTING.md) file for how to help out.
 
@@ -67,5 +81,3 @@ See the [CONTRIBUTING](https://github.com/pytorch/opacus/tree/master/CONTRIBUTIN
 * [Goodfellow, Ian. "Efficient per-example gradient computations." arXiv preprint arXiv:1510.01799 (2015).](https://arxiv.org/abs/1510.01799)
 * [McMahan, H. Brendan, and Galen Andrew. "A general approach to adding differential privacy to iterative training procedures." arXiv preprint arXiv:1812.06210 (2018).](https://arxiv.org/abs/1812.06210)
 
-## License
-This code is released under Apache 2.0, as found in the [LICENSE](https://github.com/pytorch/opacus/tree/master/LICENSE) file.
