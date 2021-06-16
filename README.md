@@ -8,13 +8,22 @@ Deep learning models are vulnerable to privacy attacks and raise severe privacy 
 
 Any regular optimizers (SGD, HeavyBall, Adam) can be turned into DP optimizers, with per-sample clipping and noise addition, via the Gaussian Mechanism. However, the convergence of DP optimizers is usually much slower and results in low accuracy (e.g. in [recent Google paper](https://arxiv.org/abs/2007.14191), state-of-the-art CIFAR10 accuracy without pretraining is 66\% when privacy risk $\epsilon=8$).
 
-We give the first **general convergence analysis** on the training dynamics of DP optimizers in deep learning, taking a close look at neural tangent kernel (**NTK**) matrix.
+We give the first **general convergence analysis** on the training dynamics of DP optimizers in deep learning, taking a close look at neural tangent kernel (**NTK**) matrix **H(t)**.
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/dp_not_GD.png" alt="Opacus" width="800"/></p>
+
 
 We show that existing per-sample clipping (which we refer to as the **local** clipping) breaks the positive semi-definiteness of NTK, which leads to undesirable convergence behavior. We thus propose the **global** per-sample clipping to preserve the positive semi-definiteness and significantly improve the convergence as well as the calibration.
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/tree/master/website/static/img/clippings.png" alt="Opacus" width="500"/></p>
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/tree/master/website/static/img/clippings_summary.png" alt="Opacus" width="500"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings_summary.png" alt="Opacus" width="800"/></p>
 
-![1](https://github.com/woodyx218/opacus_global_clipping/tree/master/website/static/img/clippings.png)
+For experiments on CIFAR10 (image) and SNLI (text):
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/cifar10.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/cifar10_calibration.png" alt="Opacus" width="800"/></p>
+
+The SNLI is trained on BERT (108 million parameters in [Opacus BERT tutorial](https://github.com/pytorch/opacus/blob/master/tutorials/building_text_classifier.ipynb).
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert_calibration.png" alt="Opacus" width="800"/></p>
+
 
 # Codes
 We add
