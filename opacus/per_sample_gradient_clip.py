@@ -40,6 +40,7 @@ from . import autograd_grad_sample
 from .utils.clipping import NormClipper
 from .utils.tensor_utils import calc_sample_norms
 
+import config
 
 class PerSampleGradientClipper:
     r"""
@@ -194,7 +195,7 @@ class PerSampleGradientClipper:
         for i, (clip_factor, named_param) in enumerate(
             zip(clipping_factor, self._named_params())
         ):
-            clip_factor=torch.min(clip_factor)+torch.zeros_like(clip_factor)
+            clip_factor=torch.where(clip_factor > self.norm_clipper.thresholds[0]/config.Z,torch.ones_like(clip_factor)*self.norm_clipper.thresholds[0]/config.Z,torch.zeros_like(clip_factor))            
             # Do the clipping
             name, p = named_param
             summed_grad = self._weighted_sum(clip_factor, p.grad_sample)
