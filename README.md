@@ -64,11 +64,14 @@ This code release is aimed at two target audiences:
 
 
 ## Getting started
-To train your model with differential privacy, all you need to do is to declare a `PrivacyEngine` and attach it to your optimizer before running, eg:
+To train your model with differential privacy, all you need to do is to declare the screening threshold Z, whether to use global clpping, a `PrivacyEngine` and attach it to your optimizer before running, eg:
 
 ```python
 model = Net()
 optimizer = SGD(model.parameters(), lr=0.05)
+
+config.G=True # using global clipping
+config.Z=100
 privacy_engine = PrivacyEngine(
     model,
     sample_rate=0.01,
