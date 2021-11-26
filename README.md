@@ -85,7 +85,7 @@ To train your model with differential privacy, all you need to do is to declare 
 model = Net()
 optimizer = SGD(model.parameters(), lr=0.05)
 
-config.G=True # using global clipping
+config.G=True # using global clipping; reduces to original Opacus if False
 config.Z=100
 privacy_engine = PrivacyEngine(
     model,
