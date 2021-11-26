@@ -30,7 +30,7 @@ We add
 ```python
 import config; clip_factor=torch.where(clip_factor > self.norm_clipper.thresholds[0]/config.Z, torch.ones_like(clip_factor)*self.norm_clipper.thresholds[0]/config.Z, torch.zeros_like(clip_factor))
 ```
-between line 197 and line 198 in (https://github.com/pytorch/opacus/blob/ee6867e6364781e67529664261243c16c3046b0b/opacus/per_sample_gradient_clip.py) as in Feburary 2021, to implement our global per-sample clipping.
+between line 197 and line 198 in (https://github.com/pytorch/opacus/blob/ee6867e6364781e67529664261243c16c3046b0b/opacus/per_sample_gradient_clip.py) as in Feburary 2021, to implement our global per-sample clipping. Here **config.Z** is a global variable that you can tune.
 
 Alternatively, one can directly use this repository, which introduces two new variables: config.Z for the screening threshold Z and config.G={True,False} to indicate whether using global clipping; note that setting config.G=False is exactly using the original Opacus with local clipping, and that config.Z has no effect in this case.
 
