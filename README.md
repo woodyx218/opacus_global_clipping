@@ -28,7 +28,7 @@ The SNLI is trained on BERT (108 million parameters in [Opacus BERT tutorial](ht
 # Codes
 We add
 ```python
-import config; clip_factor=torch.where(clip_factor > self.norm_clipper.thresholds[0]/config.Z, torch.ones_like(clip_factor)*self.norm_clipper.thresholds[0]/config.Z, torch.zeros_like(clip_factor))
+import config; clip_factor=torch.where(clip_factor > 1/config.Z, torch.ones_like(clip_factor)/config.Z, torch.zeros_like(clip_factor))
 ```
 between line 197 and line 198 in (https://github.com/pytorch/opacus/blob/ee6867e6364781e67529664261243c16c3046b0b/opacus/per_sample_gradient_clip.py) as in Feburary 2021, to implement our global per-sample clipping. Here **config.Z** is a global variable that you can tune.
 
@@ -44,9 +44,8 @@ import config
 In line 197 (within for loop), we insert
 ```python
 if config.G==True:
-    R=self.norm_clipper.thresholds[0]
     Z=config.Z
-    clip_factor=torch.where(clip_factor > R/Z, torch.ones_like(clip_factor)*R/Z, torch.zeros_like(clip_factor))
+    clip_factor=torch.where(clip_factor > 1/Z, torch.ones_like(clip_factor)*1/Z, torch.zeros_like(clip_factor))
 ```
 
 ## Installation
@@ -61,6 +60,15 @@ When using the code, the user still refer to the Opacus, e.g.
 import opacus
 ```
 
+## Citation
+```
+@article{bu2021convergence,
+  title={On the Convergence and Calibration of Deep Learning with Differential Privacy},
+  author={Bu, Zhiqi and Wang, Hua and Long, Qi},
+  journal={arXiv preprint arXiv:2106.07830},
+  year={2021}
+}
+```
 
 # Introducing Opacus
 The below contents are forked from [Opacus github](https://github.com/pytorch/opacus). We do not claim ownership of the codes in this open-sourced repository and we sincerely thank the Opacus community for maintaining this amazing library.
@@ -100,13 +108,4 @@ privacy_engine.attach(optimizer)
 
 The [MNIST example](https://github.com/pytorch/opacus/tree/master/examples/mnist.py) shows an end-to-end run using opacus. The [examples](https://github.com/pytorch/opacus/tree/master/examples/) folder contains more such examples.
 
-## Contributing
-See the [CONTRIBUTING](https://github.com/pytorch/opacus/tree/master/CONTRIBUTING.md) file for how to help out.
-
-## References
-* [Mironov, Ilya. "Rényi differential privacy." 2017 IEEE 30th Computer Security Foundations Symposium (CSF). IEEE, 2017.](https://arxiv.org/abs/1702.07476)
-* [Abadi, Martin, et al. "Deep learning with differential privacy." Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security. ACM, 2016.](https://arxiv.org/abs/1607.00133)
-* [Mironov, Ilya, Kunal Talwar, and Li Zhang. "R\'enyi Differential Privacy of the Sampled Gaussian Mechanism." arXiv preprint arXiv:1908.10530 (2019).](https://arxiv.org/abs/1908.10530)
-* [Goodfellow, Ian. "Efficient per-example gradient computations." arXiv preprint arXiv:1510.01799 (2015).](https://arxiv.org/abs/1510.01799)
-* [McMahan, H. Brendan, and Galen Andrew. "A general approach to adding differential privacy to iterative training procedures." arXiv preprint arXiv:1812.06210 (2018).](https://arxiv.org/abs/1812.06210)
 
