@@ -48,7 +48,7 @@ with open("dev_requirements.txt", encoding="utf8") as f:
     dev_required = f.read().splitlines()
 
 setup(
-    name="opacus",
+    name="opacus_global",
     version=__version__,
     author="The Opacus Team",
     description="Train PyTorch models with Differential Privacy",
