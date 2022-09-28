@@ -176,7 +176,7 @@ class PerSampleGradientClipper:
             zip(clipping_factor, self._named_params())
         ):
             if hasattr(config,'clipping_fn') and config.clipping_fn!='local':
-                clip_factor=(clip_factor>=1)
+                clip_factor=(clip_factor>=1).float()
             # Do the clipping
             name, p = named_param
             summed_grad = self._weighted_sum(clip_factor, p.grad_sample)
