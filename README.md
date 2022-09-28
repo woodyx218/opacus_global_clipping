@@ -1,7 +1,7 @@
 # What is this?
 This project contains scripts to reproduce my paper 
 [On the Convergence of Deep Learning with Differential Privacy](https://arxiv.org/abs/2106.07830)
-by Zhiqi Bu, Hua Wang, Qi Long, and Weijie J. Su. We only add **one line of code** into the [Pytorch Opacus library](https://github.com/pytorch/opacus).
+by Zhiqi Bu, Hua Wang, and Qi Long. We only add **one line of code** into the [Pytorch Opacus](https://github.com/pytorch/opacus)  library v0.15.0.
 
 # The Problem of Interest
 Deep learning models are vulnerable to privacy attacks and raise severe privacy concerns. To protect the privacy, Abadi et. al. applied [deep learning with differential privacy](https://arxiv.org/abs/1607.00133) (DP) and obtain DP neural networks. Notably, if you train a neural network with SGD, you get regular non-DP network; if you train with differentially private SGD (DP-SGD), you get DP network.
@@ -20,7 +20,7 @@ For experiments on CIFAR10 (image) and SNLI (text):
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/cifar10.png" alt="Opacus" width="800"/></p>
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/cifar10_calibration.png" alt="Opacus" width="800"/></p>
 
-The SNLI is trained on BERT (108 million parameters in [Opacus BERT tutorial](https://github.com/pytorch/opacus/blob/master/tutorials/building_text_classifier.ipynb).
+The SNLI is trained on BERT (108 million parameters) in [Opacus BERT tutorial](https://github.com/pytorch/opacus/blob/master/tutorials/building_text_classifier.ipynb).
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert.png" alt="Opacus" width="800"/></p>
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert_calibration.png" alt="Opacus" width="800"/></p>
 
@@ -28,25 +28,13 @@ The SNLI is trained on BERT (108 million parameters in [Opacus BERT tutorial](ht
 # Codes
 We add
 ```python
-import config; clip_factor=torch.where(clip_factor > 1/config.Z, torch.ones_like(clip_factor)/config.Z, torch.zeros_like(clip_factor))
+clip_factor=(clip_factor>=1)
 ```
-between line 197 and line 198 in (https://github.com/pytorch/opacus/blob/ee6867e6364781e67529664261243c16c3046b0b/opacus/per_sample_gradient_clip.py) as in Feburary 2021, to implement our global per-sample clipping. Here **config.Z** is a global variable that you can tune.
+between line 178 and line 179 in (https://github.com/pytorch/opacus/blob/v0.15.0/opacus/per_sample_gradient_clip.py), to implement our global per-sample clipping. 
 
-Alternatively, one can directly use this repository, which introduces two new variables: config.Z for the screening threshold Z and config.G={True,False} to indicate whether using global clipping; note that setting config.G=False is exactly using the original Opacus with local clipping, and that config.Z has no effect in this case.
+Alternatively, one can directly use this repository, which imports the **config** library and introduces one new variable: config.clipping_fn={'local','global'} to indicate whether using global clipping; note that setting config.clipping_fn='local' (by default) is exactly using the original Opacus with local clipping.
 
-To be specific, the only difference between this repo and Opacus is in the per_sample_gradient_clip.py:
-
-In line 33, we insert
-```python
-import config
-```
-
-In line 197 (within for loop), we insert
-```python
-if config.G==True:
-    Z=config.Z
-    clip_factor=torch.where(clip_factor > 1/Z, torch.ones_like(clip_factor)*1/Z, torch.zeros_like(clip_factor))
-```
+To be specific, the only difference between this repo and Opacus is in the per_sample_gradient_clip.py.
 
 ## Installation
 ```bash
