@@ -39,7 +39,7 @@ from torch import nn
 
 from .utils.clipping import NormClipper
 from .utils.tensor_utils import calc_sample_norms
-
+import config
 
 class PerSampleGradientClipper:
     r"""
@@ -175,6 +175,8 @@ class PerSampleGradientClipper:
         for i, (clip_factor, named_param) in enumerate(
             zip(clipping_factor, self._named_params())
         ):
+            if hasattr(config,'clipping_fn') and config.clipping_fn!='local':
+                clip_factor=(clip_factor>=1)
             # Do the clipping
             name, p = named_param
             summed_grad = self._weighted_sum(clip_factor, p.grad_sample)
