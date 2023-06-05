@@ -6,37 +6,36 @@ by Zhiqi Bu, Hua Wang, Zongyu Dai and Qi Long. We only add **one line of code** 
 # The Problem of Interest
 Deep learning models are vulnerable to privacy attacks and raise severe privacy concerns. To protect the privacy, Abadi et. al. applied [deep learning with differential privacy](https://arxiv.org/abs/1607.00133) (DP) and trained DP neural networks. Notably, if you train a neural network with SGD, you get regular non-DP network; if you train with differentially private SGD (DP-SGD), you get DP network.
 
-Any regular optimizers (SGD, HeavyBall, Adam, etc.) can be turned into DP optimizers, with per-sample clipping and noise addition, via the Gaussian Mechanism. However, the convergence of DP optimizers is usually much slower in terms of iterations and results in low accuracy (e.g. in [recent Google paper](https://arxiv.org/abs/2007.14191), state-of-the-art CIFAR10 accuracy without pretraining is 66\% when privacy risk $\epsilon=8$).
+Any regular optimizers (SGD, HeavyBall, Adam, etc.) can be turned into DP optimizers, with per-sample clipping and noise addition, via the Gaussian Mechanism. However, the convergence of DP optimizers is usually much slower in terms of iterations and results in low accuracy (e.g. in [recent Google paper](https://arxiv.org/abs/2007.14191), state-of-the-art CIFAR10 accuracy without pretraining is 66\% when privacy risk $\epsilon=8$). Additionally, DP networks are much less calibrated and trustworthy.
 
 We give the first **general convergence analysis** on the training dynamics of DP optimizers in deep learning, taking a close look at neural tangent kernel (**NTK**) matrix **H(t)**.
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/dp_not_GD.png" alt="Opacus" width="800"/></p>
 
-We show that existing per-sample clipping, with small clipping norm, breaks the positive semi-definiteness of NTK and leads to undesirable convergence behavior. We thus propose to use larger clipping norm to preserve the positive semi-definiteness and significantly improve the convergence as well as the calibration. This is based on the following insight:
+We show that existing per-sample clipping, with small clipping norm, breaks the positive semi-definiteness of NTK and leads to undesirable convergence behavior. We thus propose to use larger clipping norm to preserve the positive semi-definiteness and significantly improve the convergence as well as the calibration. This is based on the insight:
 
-$$\text{clipping/normalization} \Longleftrightarrow R/\|\frac{\partial \ell_i}{\partial w}\|\overset{\text{small} R}{\longleftarrow}C_i=\min\{1,R/\|\frac{\partial \ell_i}{\partial w}\|\}\overset{\text{large} R}{\longrightarrow}C_i=1\Longleftrightarrow\text{no clipping}.$$
+$$\text{clipping/normalization} \Longleftrightarrow R/\|\frac{\partial \ell_i}{\partial w}\|\overset{\text{small} R}{\longleftarrow}C_i=\min(1,R/\|\frac{\partial \ell_i}{\partial w}\|)\overset{\text{large} R}{\longrightarrow}C_i=1\Longleftrightarrow\text{no clipping}.$$
 
 
-For experiments on CIFAR10 (image) and SNLI (text):
+For experiments, CIFAR10 (image classification) is trained on Vision Transformer (86 million parameters):
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/CIFAR10.png" alt="Opacus" width="800"/></p>
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/CIFAR10_calibration.png" alt="Opacus" width="800"/></p>
 
-The SNLI is trained on BERT (108 million parameters) in [Opacus BERT tutorial](https://github.com/pytorch/opacus/blob/master/tutorials/building_text_classifier.ipynb).
+The SNLI (text classification) is trained on BERT (108 million parameters) in [Opacus BERT tutorial](https://github.com/pytorch/opacus/blob/master/tutorials/building_text_classifier.ipynb).
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/BERT.png" alt="Opacus" width="800"/></p>
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/BERT_calibration.png" alt="Opacus" width="800"/></p>
 
 # New clipping function
-and additionally a new clipping function -- the **global** per-sample clipping --
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings.png" alt="Opacus" width="800"/></p>
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings_summary.png" alt="Opacus" width="800"/></p>
+Besides recommending larger clipping norm for the existing per-sample clipping, we propose a new clipping function -- the **global** per-sample clipping, $C_{global,i}=\mathbb{I}(\|g^{(i)}\|\leq R)$, i.e. only assigning 0 or 1 as the clipping factors to each per-sample gradient. This may be beneficial to the optimization, since large per-sample gradients often correspond to samples that are hard-to-learn, noisy or adversarial. However, using a large clipping norm makes the global clipping similar to the existing clipping, basically not
+clipping most of the per-sample gradients.
 
 # Codes
-We add
+To apply a large clipping norm, one can use Opacus library, by specifying max_grad_norm in the opacus.PrivacyEngine. To use the global clipping function, we add
 ```python
 clip_factor=(clip_factor>=1)
 ```
 between line 178 and line 179 in (https://github.com/pytorch/opacus/blob/v0.15.0/opacus/per_sample_gradient_clip.py), to implement our global per-sample clipping. 
 
-Alternatively, one can directly use this repository, which imports the **config** library and introduces one new variable: config.clipping_fn={'local','global'} to indicate whether using global clipping; note that setting config.clipping_fn='local' (by default) is exactly using the original Opacus with local clipping.
+Alternatively, one can directly use this repository, which imports the **config** library and introduces one new variable: config.clipping_fn={'local','global'} to indicate whether to use global clipping. Note that setting config.clipping_fn='local' (by default) is exactly using the original Opacus with existing clipping.
 
 To be specific, the only difference between this repo and Opacus is in the per_sample_gradient_clip.py.
 
