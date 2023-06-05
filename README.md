@@ -65,10 +65,6 @@ import opacus
 # Introducing Opacus
 The below contents are forked from [Opacus github](https://github.com/pytorch/opacus). We do not claim ownership of the codes in this open-sourced repository and we sincerely thank the Opacus community for maintaining this amazing library.
 
-<p align="center"><img src="https://github.com/pytorch/opacus/blob/master/website/static/img/opacus_logo.svg" alt="Opacus" width="500"/></p>
-
-<hr/>
-
 [Opacus](https://opacus.ai) is a library that enables training PyTorch models with differential privacy. It supports training with minimal code changes required on the client, has little impact on training performance and allows the client to online track the privacy budget expended at any given moment.
 
 ## Target audience
