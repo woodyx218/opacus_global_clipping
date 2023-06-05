@@ -17,12 +17,12 @@ $$\text{clipping/normalization} \Longleftrightarrow R/\|\frac{\partial \ell_i}{\
 
 
 For experiments on CIFAR10 (image) and SNLI (text):
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/cifar10.png" alt="Opacus" width="800"/></p>
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/cifar10_calibration.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/CIFAR10.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/CIFAR10_calibration.png" alt="Opacus" width="800"/></p>
 
 The SNLI is trained on BERT (108 million parameters) in [Opacus BERT tutorial](https://github.com/pytorch/opacus/blob/master/tutorials/building_text_classifier.ipynb).
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert.png" alt="Opacus" width="800"/></p>
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert_calibration.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/BERT.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/BERT_calibration.png" alt="Opacus" width="800"/></p>
 
 # New clipping function
 and additionally a new clipping function -- the **global** per-sample clipping --
