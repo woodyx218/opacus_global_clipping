@@ -1,20 +1,20 @@
 # What is this?
 This project contains scripts to reproduce my paper 
-[On the Convergence of Deep Learning with Differential Privacy](https://arxiv.org/abs/2106.07830)
-by Zhiqi Bu, Hua Wang, and Qi Long. We only add **one line of code** into the [Pytorch Opacus](https://github.com/pytorch/opacus)  library v0.15.0.
+[On the Convergence and Calibration of Deep Learning with Differential Privacy](https://arxiv.org/abs/2106.07830)
+by Zhiqi Bu, Hua Wang, Zongyu Dai and Qi Long. We only add **one line of code** into the [Pytorch Opacus](https://github.com/pytorch/opacus)  library v0.15.0.
 
 # The Problem of Interest
-Deep learning models are vulnerable to privacy attacks and raise severe privacy concerns. To protect the privacy, Abadi et. al. applied [deep learning with differential privacy](https://arxiv.org/abs/1607.00133) (DP) and obtain DP neural networks. Notably, if you train a neural network with SGD, you get regular non-DP network; if you train with differentially private SGD (DP-SGD), you get DP network.
+Deep learning models are vulnerable to privacy attacks and raise severe privacy concerns. To protect the privacy, Abadi et. al. applied [deep learning with differential privacy](https://arxiv.org/abs/1607.00133) (DP) and trained DP neural networks. Notably, if you train a neural network with SGD, you get regular non-DP network; if you train with differentially private SGD (DP-SGD), you get DP network.
 
-Any regular optimizers (SGD, HeavyBall, Adam) can be turned into DP optimizers, with per-sample clipping and noise addition, via the Gaussian Mechanism. However, the convergence of DP optimizers is usually much slower and results in low accuracy (e.g. in [recent Google paper](https://arxiv.org/abs/2007.14191), state-of-the-art CIFAR10 accuracy without pretraining is 66\% when privacy risk $\epsilon=8$).
+Any regular optimizers (SGD, HeavyBall, Adam, etc.) can be turned into DP optimizers, with per-sample clipping and noise addition, via the Gaussian Mechanism. However, the convergence of DP optimizers is usually much slower in terms of iterations and results in low accuracy (e.g. in [recent Google paper](https://arxiv.org/abs/2007.14191), state-of-the-art CIFAR10 accuracy without pretraining is 66\% when privacy risk $\epsilon=8$).
 
 We give the first **general convergence analysis** on the training dynamics of DP optimizers in deep learning, taking a close look at neural tangent kernel (**NTK**) matrix **H(t)**.
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/dp_not_GD.png" alt="Opacus" width="800"/></p>
 
+We show that existing per-sample clipping, with small clipping norm, breaks the positive semi-definiteness of NTK and leads to undesirable convergence behavior. We thus propose to use larger clipping norm to preserve the positive semi-definiteness and significantly improve the convergence as well as the calibration. This is based on the following insight:
 
-We show that existing per-sample clipping (which we refer to as the **local** clipping) breaks the positive semi-definiteness of NTK, which leads to undesirable convergence behavior. We thus propose the **global** per-sample clipping to preserve the positive semi-definiteness and significantly improve the convergence as well as the calibration.
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings.png" alt="Opacus" width="800"/></p>
-<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings_summary.png" alt="Opacus" width="800"/></p>
+$$\text{clipping/normalization} \Longleftrightarrow R/\|\frac{\partial \ell_i}{\partial w}\|\overset{\text{small} R}{\longleftarrow}C_i=\min\{1,R/\|\frac{\partial \ell_i}{\partial w}\|\}\overset{\text{large} R}{\longrightarrow}C_i=1\Longleftrightarrow\text{no clipping}.$$
+
 
 For experiments on CIFAR10 (image) and SNLI (text):
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/cifar10.png" alt="Opacus" width="800"/></p>
@@ -24,6 +24,10 @@ The SNLI is trained on BERT (108 million parameters) in [Opacus BERT tutorial](h
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert.png" alt="Opacus" width="800"/></p>
 <p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/bert_calibration.png" alt="Opacus" width="800"/></p>
 
+# New clipping function
+and additionally a new clipping function -- the **global** per-sample clipping --
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings.png" alt="Opacus" width="800"/></p>
+<p align="center"><img src="https://github.com/woodyx218/opacus_global_clipping/blob/master/website/static/clippings_summary.png" alt="Opacus" width="800"/></p>
 
 # Codes
 We add
